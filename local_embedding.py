@@ -8,12 +8,12 @@ compatible with cosine similarity search in VectorIndex.
 """
 
 import torch
-from transformers import AutoTokenizer, AutoModel
+from transformers import AutoModel, AutoTokenizer
+
 from vector_index import VectorIndex
 
 
 class LocalEmbedding:
-
     def __init__(
         self,
         model_name: str = "sentence-transformers/all-MiniLM-L6-v2",
@@ -29,7 +29,9 @@ class LocalEmbedding:
         self.model_name = model_name
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
-        print(f"[LocalEmbedding] Loading {self.model_name} on {self.device}...")
+        print(
+            f"[LocalEmbedding] Loading {self.model_name} on {self.device}..."
+        )
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
         self.model = AutoModel.from_pretrained(self.model_name)
         self.model.to(self.device)
@@ -123,7 +125,7 @@ class LocalEmbedding:
             chunks: List of text strings to index.
         """
         embeddings = self.get_embeddings(chunks)
-        for chunk, embedding in zip(chunks, embeddings):
+        for chunk, embedding in zip(chunks, embeddings, strict=True):
             self.store.add_vector(embedding.tolist(), {"content": chunk})
         print(f"[LocalEmbedding] Indexed {len(chunks)} chunks.")
 

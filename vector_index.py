@@ -9,7 +9,7 @@ No external dependencies beyond the Python standard library.
 """
 
 import math
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 
 class VectorIndex:
@@ -27,9 +27,9 @@ class VectorIndex:
         if distance_metric not in ["cosine", "euclidean"]:
             raise ValueError("distance_metric must be 'cosine' or 'euclidean'")
 
-        self.vectors: List[List[float]] = []
-        self.documents: List[Dict[str, Any]] = []
-        self._vector_dim: Optional[int] = None
+        self.vectors: list[list[float]] = []
+        self.documents: list[dict[str, Any]] = []
+        self._vector_dim: int | None = None
         self._distance_metric = distance_metric
         self._embedding_fn = embedding_fn
 
@@ -37,7 +37,7 @@ class VectorIndex:
     # Public API
     # ------------------------------------------------------------------
 
-    def add_document(self, document: Dict[str, Any]):
+    def add_document(self, document: dict[str, Any]):
         """
         Embed the document's 'content' field and store it in the index.
 
@@ -67,7 +67,7 @@ class VectorIndex:
         vector = self._embedding_fn(content)
         self.add_vector(vector=vector, document=document)
 
-    def add_vector(self, vector: List[float], document: Dict[str, Any]):
+    def add_vector(self, vector: list[float], document: dict[str, Any]):
         """
         Store a pre-computed vector together with its source document.
 
@@ -103,7 +103,7 @@ class VectorIndex:
 
     def search(
         self, query: Any, k: int = 1
-    ) -> List[Tuple[Dict[str, Any], float]]:
+    ) -> list[tuple[dict[str, Any], float]]:
         """
         Return the k documents whose vectors are closest to the query.
 
@@ -168,7 +168,7 @@ class VectorIndex:
     # ------------------------------------------------------------------
 
     def _euclidean_distance(
-        self, vec1: List[float], vec2: List[float]
+        self, vec1: list[float], vec2: list[float]
     ) -> float:
         """
         Straight-line distance between two vectors.
@@ -182,11 +182,13 @@ class VectorIndex:
         """
         if len(vec1) != len(vec2):
             raise ValueError("Vectors must have the same dimension")
-        return math.sqrt(sum((p - q) ** 2 for p, q in zip(vec1, vec2)))
+        return math.sqrt(
+            sum((p - q) ** 2 for p, q in zip(vec1, vec2, strict=True))
+        )
 
-    def _cosine_distance(self, vec1: List[float], vec2: List[float]) -> float:
+    def _cosine_distance(self, vec1: list[float], vec2: list[float]) -> float:
         """
-        Angular distance derived from cosine similarity (1 − similarity).
+        Angular distance derived from cosine similarity (1 - similarity).
 
         Returns 0.0 for identical vectors and 1.0 for orthogonal ones.
         Two zero vectors are treated as identical (distance = 0.0).
@@ -220,12 +222,12 @@ class VectorIndex:
     # Vector math helpers
     # ------------------------------------------------------------------
 
-    def _dot_product(self, vec1: List[float], vec2: List[float]) -> float:
+    def _dot_product(self, vec1: list[float], vec2: list[float]) -> float:
         if len(vec1) != len(vec2):
             raise ValueError("Vectors must have the same dimension")
-        return sum(p * q for p, q in zip(vec1, vec2))
+        return sum(p * q for p, q in zip(vec1, vec2, strict=True))
 
-    def _magnitude(self, vec: List[float]) -> float:
+    def _magnitude(self, vec: list[float]) -> float:
         return math.sqrt(sum(x * x for x in vec))
 
     # ------------------------------------------------------------------

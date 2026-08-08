@@ -1,19 +1,22 @@
 # Let's import these libraries
-import torch  # PyTorch, the backend for transformers
-from transformers import AutoModelForCausalLM
-from transformers import TextStreamer, TextIteratorStreamer
-from transformers import AutoTokenizer
-from threading import Thread
-from pdf_reader import PdfReader
-from local_embedding import LocalEmbedding
 import os
+from threading import Thread
 from typing import Any
 
+import torch  # PyTorch, the backend for transformers
 from huggingface_hub import login
+from transformers import (
+    AutoModelForCausalLM,
+    AutoTokenizer,
+    TextIteratorStreamer,
+    TextStreamer,
+)
+
+from local_embedding import LocalEmbedding
+from pdf_reader import PdfReader
 
 
 class AiModel:
-
     def __init__(self, model_name="Qwen/Qwen2.5-3B-Instruct"):
         """
         initializing my AiModel class where we need the model name to create a tokenizer and a model
@@ -24,7 +27,9 @@ class AiModel:
         print("running checks to make sure everything is good...")
         self.hugging_face_auth()
         self.hardware_check()
-        print("we are creating the model this might take a while please wait...")
+        print(
+            "we are creating the model this might take a while please wait..."
+        )
         self.tokenizer = AutoTokenizer.from_pretrained(
             self.model_name, trust_remote_code=True
         )
@@ -71,7 +76,9 @@ class AiModel:
         )
 
         # getting input and prompt
-        inputs = self.tokenizer(formatted, return_tensors="pt").to(self.model.device)
+        inputs = self.tokenizer(formatted, return_tensors="pt").to(
+            self.model.device
+        )
 
         # Streaming output — tokens are printed to the terminal as they are generated,
         # instead of waiting for the full response to be built in memory first.
@@ -110,7 +117,9 @@ class AiModel:
         )
 
         # getting input and prompt
-        inputs = self.tokenizer(formatted, return_tensors="pt").to(self.model.device)
+        inputs = self.tokenizer(formatted, return_tensors="pt").to(
+            self.model.device
+        )
 
         # Streaming output — tokens are printed to the terminal as they are generated,
         # instead of waiting for the full response to be built in memory first.
@@ -155,12 +164,17 @@ class AiModel:
         formatted = self.tokenizer.apply_chat_template(
             messages, tokenize=False, add_generation_prompt=True
         )
-        inputs = self.tokenizer(formatted, return_tensors="pt").to(self.model.device)
+        inputs = self.tokenizer(formatted, return_tensors="pt").to(
+            self.model.device
+        )
 
         # TextIteratorStreamer stores tokens in a Queue instead of printing to stdout.
         # timeout=30 prevents blocking forever if the generation thread crashes.
         streamer = TextIteratorStreamer(
-            self.tokenizer, skip_prompt=True, skip_special_tokens=True, timeout=30.0
+            self.tokenizer,
+            skip_prompt=True,
+            skip_special_tokens=True,
+            timeout=30.0,
         )
 
         # model.generate() is blocking — run it in a daemon thread so the main
@@ -172,8 +186,7 @@ class AiModel:
         )
         thread.start()
 
-        for chunk in streamer:
-            yield chunk
+        yield from streamer
 
         thread.join()
 

@@ -1,9 +1,9 @@
 import re
+
 import pypdf
 
 
 class PdfReader:
-
     # initializing our pdf reader class
     def __init__(self, path="./pdfs/2025-q1-earnings-transcript.pdf"):
         """
@@ -33,9 +33,15 @@ class PdfReader:
         pdf_text = re.sub(
             r"[ \t]*\n[ \t]*", " ", pdf_text
         )  # 3. collapse word-wrap newlines → space
-        pdf_text = pdf_text.replace("¶", "\n")  # 4. restore paragraph breaks as \n
-        pdf_text = re.sub(r" +", " ", pdf_text).strip()  # 5. final space cleanup
-        print(f"Successfully extracted text. Total characters: {len(pdf_text)}")
+        pdf_text = pdf_text.replace(
+            "¶", "\n"
+        )  # 4. restore paragraph breaks as \n
+        pdf_text = re.sub(
+            r" +", " ", pdf_text
+        ).strip()  # 5. final space cleanup
+        print(
+            f"Successfully extracted text. Total characters: {len(pdf_text)}"
+        )
         self.pages_text = pdf_text
         return pdf_text
 

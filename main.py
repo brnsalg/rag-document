@@ -17,8 +17,8 @@ import tempfile
 import streamlit as st
 from dotenv import load_dotenv
 
-from local_llm import AiModel
 from local_embedding import LocalEmbedding
+from local_llm import AiModel
 from pdf_reader import PdfReader
 
 # ------------------------------------------------------------------
